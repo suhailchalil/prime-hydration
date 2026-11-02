@@ -2,6 +2,8 @@
 
 A three-flavour product hero for Blue Raspberry, Tropical Punch, and Lemon Lime. Each slide combines layered artwork, responsive motion, drag and swipe navigation, and a bold flavour identity.
 
+**[View the live demo](https://suhailchalil.github.io/prime-hydration/)**
+
 ![PRIME campaign preview](preview.webp)
 
 ## Versions

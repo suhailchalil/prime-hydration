@@ -2,7 +2,7 @@
 
 A three-flavour product hero for Blue Raspberry, Tropical Punch, and Lemon Lime. Each slide combines layered artwork, responsive motion, drag and swipe navigation, and a bold flavour identity.
 
-![PRIME Blue Raspberry product artwork](assets/bottle-blue.webp)
+![PRIME campaign preview](preview.webp)
 
 ## Versions
 

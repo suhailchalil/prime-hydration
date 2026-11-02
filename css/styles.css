@@ -1,0 +1,726 @@
+/* =====================================================================
+   PRIME — 3-slide reel hero
+   Layer order (back → front):  world · bgword · mid splash · main · front
+   ===================================================================== */
+
+/* ----------------------------- tokens ----------------------------- */
+:root{
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --ease-soft: cubic-bezier(.33, .9, .28, 1);
+  --autoplay: 7.5s;
+
+  --shell: clamp(20px, 5.2vw, 84px);
+  --ink: #fff;
+  --bg: #04070f;
+}
+
+/* per-flavour worlds */
+[data-flavor="blue"]{
+  --glow:#2ea8ff;  --tint:#03153f;  --accent:#8fd8ff;
+  --word: rgba(224,244,255,.28);  --word-line: rgba(255,255,255,.42);
+}
+[data-flavor="tropical"]{
+  --glow:#ff6a2b;  --tint:#3d0703;  --accent:#ffc46b;
+  --word: rgba(255,236,222,.30);  --word-line: rgba(255,255,255,.44);
+}
+[data-flavor="lemon"]{
+  --glow:#b6ff2e;  --tint:#123309;  --accent:#eaff8a;
+  --word: rgba(250,255,232,.32);  --word-line: rgba(255,255,255,.5);
+}
+
+/* ----------------------------- base ------------------------------- */
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+
+img{ display:block; max-width:100%; }
+button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+a{ color:inherit; text-decoration:none; }
+
+:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+.skip{
+  position:absolute; top:-100px; left:16px; z-index:100;
+  padding:10px 16px; border-radius:99px;
+  background:#fff; color:#000; font-weight:700;
+}
+.skip:focus{ top:16px; }
+
+/* ============================== NAV =============================== */
+.topbar{
+  position:fixed; inset:0 0 auto 0; z-index:50;
+  display:flex; align-items:center; gap:clamp(16px,3vw,48px);
+  padding:clamp(18px,2.4vw,30px) var(--shell);
+  background:linear-gradient(to bottom, rgba(4,7,15,.55), transparent);
+}
+
+.brand{
+  font-family:"Anton", Impact, sans-serif;
+  font-size:clamp(22px,2vw,30px);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  filter:drop-shadow(0 2px 14px rgba(0,0,0,.5));
+}
+
+.mainnav{
+  display:flex; gap:clamp(14px,2vw,36px);
+  margin-inline:auto;
+  font-size:13px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase;
+}
+.mainnav a{ position:relative; padding:6px 2px; opacity:.72; transition:opacity .3s; }
+.mainnav a::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+  background:currentColor; transform:scaleX(0); transform-origin:right;
+  transition:transform .45s var(--ease);
+}
+.mainnav a:hover{ opacity:1; }
+.mainnav a:hover::after{ transform:scaleX(1); transform-origin:left; }
+.mainnav a.is-current{ opacity:1; }
+.mainnav a.is-current::after{ transform:scaleX(1); }
+
+.tools{ display:flex; gap:6px; }
+.icon{
+  display:grid; place-items:center;
+  width:40px; height:40px; border-radius:99px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(8px);
+  transition:background .3s, border-color .3s, transform .3s var(--ease);
+}
+.icon:hover{ background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.4); transform:translateY(-2px); }
+.icon svg{ width:19px; height:19px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.icon--menu{ display:none; }
+
+/* ============================== HERO ============================== */
+.hero{
+  position:relative;
+  height:100svh; min-height:480px;
+  /* `clip` (not `hidden`) — `hidden` makes the hero a scroll container, and
+     focusing a HUD control would then scroll the whole composition out of frame */
+  overflow:hidden;
+  overflow:clip;
+  isolation:isolate;
+}
+
+.reel{ position:absolute; inset:0; }
+
+.slide{
+  position:absolute; inset:0;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .85s var(--ease), visibility 0s linear .95s;
+}
+.slide.is-active{
+  opacity:1; visibility:visible; pointer-events:auto;
+  transition-delay:0s, 0s;
+  z-index:2;
+}
+
+/* ---------------------- depth + parallax layers -------------------- */
+.layer{
+  position:absolute; inset:0;
+  transform:translate3d(calc(var(--mx,0) * var(--depth) * 1px),
+                        calc(var(--my,0) * var(--depth) * .7px), 0);
+  transition:transform .9s var(--ease-soft);
+  will-change:transform;
+}
+
+/* entrance / exit — offset scales with depth, so the scene opens like a reel */
+.layer__in{
+  position:absolute; inset:0;
+  opacity:0;
+  transform:translate3d(calc(var(--dir,1) * var(--depth) * .34%), 0, 0)
+            scale(calc(1 + var(--depth) * .0016));
+  transition:opacity .85s var(--ease) var(--d,0ms),
+             transform 1.25s var(--ease) var(--d,0ms);
+}
+.slide.is-active .layer__in{ opacity:1; transform:none; }
+
+/* ------------------------- far: the world -------------------------- */
+.world{
+  position:absolute; inset:-8%;
+  background-size:cover; background-position:center;
+  animation:worldDrift 30s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes worldDrift{
+  from{ transform:scale(1.05) translate3d(-1.2%, .6%, 0); }
+  to  { transform:scale(1.17) translate3d(1.6%, -1.4%, 0); }
+}
+
+/* cinematic grade + copy legibility */
+.vignette{
+  position:absolute; inset:0;
+  background:
+    linear-gradient(100deg, rgba(3,6,14,.86) 0%, rgba(3,6,14,.58) 28%,
+                            rgba(3,6,14,.16) 54%, transparent 70%),
+    linear-gradient(120deg, var(--tint) 0%, transparent 58%),
+    radial-gradient(125% 95% at 60% 46%, transparent 34%, rgba(3,6,14,.58) 100%),
+    linear-gradient(to top, rgba(3,6,14,.62), transparent 32%);
+}
+
+/* --------------------- far: oversized flavour word ----------------- */
+.bgword{
+  position:absolute; left:59%; top:42%;
+  translate:-50% -50%;
+  margin:0;
+  display:flex; flex-direction:column; align-items:center;
+  font-family:"Anton", Impact, sans-serif;
+  font-size:clamp(4rem, 16vw, 16.5rem);
+  line-height:.76;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  color:var(--word);
+  -webkit-text-stroke:1px var(--word-line);
+  text-shadow:0 30px 80px rgba(0,0,0,.35);
+  user-select:none;
+  animation:wordBreathe 16s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes wordBreathe{
+  from{ transform:scale(1) translateY(0); }
+  to  { transform:scale(1.055) translateY(-1.2%); }
+}
+.bgword span{
+  display:block;
+  transform:translateY(.18em);
+  opacity:0;
+  transition:transform 1.1s var(--ease), opacity .9s var(--ease);
+}
+.bgword span:nth-child(2){ transition-delay:.09s; }
+.slide.is-active .bgword span{ transform:none; opacity:1; }
+
+/* ------------------------ mid: liquid energy ----------------------- */
+.halo{
+  position:absolute; left:59%; top:52%;
+  width:72vmin; height:72vmin;
+  translate:-50% -50%;
+  background:radial-gradient(circle, var(--glow) 0%, transparent 62%);
+  opacity:.5;
+  filter:blur(26px);
+  animation:halo 8s ease-in-out infinite alternate;
+}
+@keyframes halo{
+  from{ opacity:.34; transform:scale(.92); }
+  to  { opacity:.6;  transform:scale(1.08); }
+}
+
+/* --------------------- floating scene elements --------------------- */
+.el{
+  position:absolute;
+  left:var(--x); top:var(--y);
+  width:var(--w); height:auto;
+  translate:-50% -50%;
+  opacity:var(--op, 1);
+  filter:blur(var(--blur, 0px)) drop-shadow(0 22px 34px rgba(0,0,0,.38));
+  animation:drift var(--dur, 12s) var(--dly, 0s) ease-in-out infinite alternate;
+  will-change:transform;
+  pointer-events:none;
+}
+@keyframes drift{
+  from{ transform:translate3d(0,0,0) rotate(var(--r, 0deg)); }
+  to  { transform:translate3d(var(--dx, 10px), var(--dy, -14px), 0)
+                 rotate(calc(var(--r, 0deg) + var(--dr, 6deg))); }
+}
+
+/* splashes read as light, not as cut-outs */
+.splash{
+  mix-blend-mode:screen;
+  filter:blur(var(--blur,0px)) saturate(1.15) drop-shadow(0 0 40px var(--glow));
+  animation:drift var(--dur,12s) var(--dly,0s) ease-in-out infinite alternate,
+            shimmer 3.4s ease-in-out infinite alternate;
+}
+@keyframes shimmer{
+  from{ opacity:calc(var(--op,1) * var(--dim,.72)); }
+  to  { opacity:var(--op,1); }
+}
+
+/* clear water over a bright world can't use `screen` - it just disappears.
+   Render it solid and let contrast carve the edges instead. */
+.splash--solid{
+  /* barely dim on the shimmer — this one has to stay present, not pulse away */
+  --dim:.93;
+  mix-blend-mode:normal;
+  filter:blur(var(--blur,0px)) saturate(1.08) contrast(1.12) brightness(1.06)
+         drop-shadow(0 0 30px rgba(255,255,255,.4))
+         drop-shadow(0 16px 30px rgba(0,0,0,.34));
+}
+
+/* ------------------------- main: the bottle ------------------------ */
+.bottle-wrap{
+  position:absolute; left:59%; top:52%;
+  width:clamp(186px, 26vw, 400px);
+  translate:-50% -50%;
+  opacity:0;
+  transform:translate3d(calc(var(--dir,1) * 15%), 3%, 0)
+            scale(.86) rotate(calc(var(--dir,1) * 5deg));
+  transition:opacity .9s var(--ease) .1s, transform 1.35s var(--ease) .1s;
+}
+.slide.is-active .bottle-wrap{ opacity:1; transform:none; }
+
+.bottle{
+  width:100%;
+  filter:drop-shadow(0 46px 60px rgba(0,0,0,.5))
+         drop-shadow(0 0 70px color-mix(in srgb, var(--glow) 55%, transparent));
+  animation:bob 7s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes bob{
+  from{ transform:translate3d(-6px,-16px,0) rotate(-2.4deg) scale(1); }
+  to  { transform:translate3d(6px, 16px,0) rotate(1.8deg)  scale(1.02); }
+}
+
+/* ============================ COPY BLOCK ========================== */
+.copy{
+  position:absolute; left:var(--shell); top:50%;
+  translate:0 -50%;
+  z-index:6;
+  display:flex; flex-direction:column; align-items:flex-start;
+  width:min(44ch, 44vw);
+}
+.copy > *{
+  margin:0;
+  opacity:0;
+  transform:translateY(26px);
+  filter:blur(7px);
+  transition:opacity .75s var(--ease), transform .95s var(--ease),
+             filter .85s var(--ease);
+}
+.slide.is-active .copy > *{ opacity:1; transform:none; filter:blur(0); }
+.slide.is-active .copy > :nth-child(1){ transition-delay:.20s; }
+.slide.is-active .copy > :nth-child(2){ transition-delay:.28s; }
+.slide.is-active .copy > :nth-child(3){ transition-delay:.36s; }
+.slide.is-active .copy > :nth-child(4){ transition-delay:.44s; }
+.slide.is-active .copy > :nth-child(5){ transition-delay:.52s; }
+
+.eyebrow{
+  display:flex; align-items:center; gap:12px;
+  font-size:clamp(10px,1vw,12px); font-weight:700;
+  letter-spacing:.34em; text-transform:uppercase;
+  color:var(--accent);
+}
+.eyebrow i{ width:clamp(26px,3vw,52px); height:1px; background:currentColor; opacity:.7; }
+
+.title{
+  margin-top:clamp(14px,1.6vw,22px) !important;
+  font-family:"Anton", Impact, sans-serif;
+  font-weight:400;
+  font-size:clamp(2.5rem, 5.3vw, 5.1rem);
+  line-height:.9;
+  letter-spacing:-.005em;
+  text-transform:uppercase;
+  text-shadow:0 14px 40px rgba(0,0,0,.5);
+}
+.title span{ display:block; }
+.title span:last-child{ color:var(--accent); }
+
+.desc{
+  margin-top:clamp(14px,1.5vw,20px) !important;
+  max-width:38ch;
+  font-size:clamp(14px,1.12vw,16.5px);
+  line-height:1.65;
+  color:rgba(255,255,255,.76);
+}
+
+.facts{
+  margin-top:clamp(20px,2.2vw,28px) !important;
+  padding:0; list-style:none;
+  display:flex; flex-wrap:wrap; gap:8px;
+}
+.facts li{
+  display:flex; align-items:center; gap:7px;
+  padding:8px 13px 8px 10px;
+  border:1px solid rgba(255,255,255,.17);
+  border-radius:99px;
+  background:rgba(255,255,255,.055);
+  backdrop-filter:blur(10px);
+  font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  white-space:nowrap;
+}
+.facts svg{
+  width:15px; height:15px; flex:none;
+  fill:none; stroke:var(--accent);
+  stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
+}
+
+.cta{
+  position:relative; overflow:hidden;
+  margin-top:clamp(24px,2.6vw,34px) !important;
+  display:inline-flex; align-items:center; gap:12px;
+  padding:16px 22px 16px 28px;
+  border-radius:99px;
+  background:#fff; color:#07101f;
+  font-size:13px; font-weight:800;
+  letter-spacing:.16em; text-transform:uppercase;
+  box-shadow:0 18px 40px rgba(0,0,0,.34);
+  transition:transform .4s var(--ease), box-shadow .4s var(--ease), background .3s;
+}
+.cta svg{
+  width:18px; height:18px;
+  fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+  transition:transform .4s var(--ease);
+}
+.cta:hover{
+  transform:translateY(-3px);
+  box-shadow:0 24px 50px rgba(0,0,0,.42), 0 0 40px color-mix(in srgb, var(--glow) 60%, transparent);
+}
+.cta:hover svg{ transform:translateX(5px); }
+
+/* ======================= RIGHT-SIDE SUPPORT TEXT ================== */
+.script{
+  position:absolute; right:calc(var(--shell) - 6px); top:26%;
+  z-index:6; margin:0;
+  font-family:"Caveat", "Segoe Script", cursive;
+  font-size:clamp(1.5rem, 2.9vw, 2.9rem);
+  line-height:1.1;
+  color:rgba(255,255,255,.94);
+  text-align:right;
+  rotate:-5deg;
+  text-shadow:0 10px 30px rgba(0,0,0,.45);
+  opacity:0;
+  transform:translateX(24px);
+  transition:opacity .8s var(--ease) .5s, transform 1s var(--ease) .5s;
+}
+.slide.is-active .script{ opacity:1; transform:none; }
+
+.stack{
+  position:absolute; right:var(--shell); bottom:clamp(96px,13vh,132px);
+  z-index:6; margin:0; padding:0; list-style:none;
+  text-align:right;
+}
+.stack li{
+  font-size:clamp(11px,1vw,13px); font-weight:800;
+  letter-spacing:.3em; text-transform:uppercase;
+  line-height:1.85;
+  opacity:0;
+  transform:translateX(18px);
+  transition:opacity .6s var(--ease), transform .8s var(--ease);
+}
+.stack li:nth-child(1){ transition-delay:.56s; }
+.stack li:nth-child(2){ transition-delay:.63s; color:var(--accent); }
+.stack li:nth-child(3){ transition-delay:.70s; }
+.stack li:nth-child(4){ transition-delay:.77s; color:var(--accent); }
+.slide.is-active .stack li{ opacity:.85; transform:none; }
+
+/* ============================== HUD =============================== */
+.hud{
+  position:absolute; left:50%; bottom:clamp(24px,4.4vh,46px);
+  translate:-50% 0; z-index:30;
+  display:flex; align-items:center; gap:clamp(14px,2vw,26px);
+}
+
+.arrow{
+  display:grid; place-items:center;
+  width:46px; height:46px; border-radius:99px;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(10px);
+  transition:background .35s, border-color .35s, transform .35s var(--ease);
+}
+.arrow:hover{ background:rgba(255,255,255,.16); border-color:#fff; transform:scale(1.07); }
+.arrow:active{ transform:scale(.96); }
+.arrow svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+.dots{ display:flex; align-items:center; gap:10px; }
+.dot{
+  position:relative;
+  width:30px; height:3px;
+  border-radius:99px;
+  background:rgba(255,255,255,.3);
+  transition:width .6s var(--ease), background .4s;
+}
+.dot:hover{ background:rgba(255,255,255,.55); }
+.dot.is-on{ width:78px; background:rgba(255,255,255,.24); }
+.dot i{
+  position:absolute; inset:0;
+  border-radius:99px; background:#fff;
+  transform:scaleX(0); transform-origin:left;
+}
+.dot.is-on i{ animation:fill var(--autoplay) linear forwards; }
+.reel.is-paused ~ .hud .dot.is-on i{ animation-play-state:paused; }
+.reel.no-auto ~ .hud .dot.is-on i{ animation:none; transform:scaleX(1); }
+@keyframes fill{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+
+.dot span{
+  position:absolute; bottom:16px; left:50%;
+  translate:-50% 0;
+  font-size:9.5px; font-weight:700;
+  letter-spacing:.22em; text-transform:uppercase;
+  white-space:nowrap;
+  opacity:0;
+  transition:opacity .35s;
+}
+.dot:hover span, .dot:focus-visible span{ opacity:.9; }
+
+.counter{
+  position:absolute; right:var(--shell); bottom:clamp(26px,4.4vh,46px);
+  z-index:30; margin:0;
+  display:flex; align-items:center; gap:10px;
+  font-size:12px; font-weight:700;
+  letter-spacing:.2em;
+  color:rgba(255,255,255,.55);
+}
+.counter b{ font-size:15px; color:#fff; }
+.counter i{ width:26px; height:1px; background:currentColor; }
+
+.hint{
+  position:absolute; left:var(--shell); bottom:clamp(26px,4.4vh,46px);
+  z-index:30; margin:0;
+  font-size:10.5px; font-weight:600;
+  letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(255,255,255,.42);
+}
+.hint span{ color:rgba(255,255,255,.85); }
+
+.reel{ cursor:grab; }
+.reel.is-dragging{ cursor:grabbing; }
+
+
+/* =========================== MOTION SYSTEM ========================
+   Each flavour flies its bottle in from a different edge, so stepping
+   through the reel never repeats the same move.
+   ================================================================== */
+[data-flavor="blue"]     .bottle-wrap{ transform:translate3d(0,-40%,0)   scale(.78) rotate(-12deg); }
+[data-flavor="tropical"] .bottle-wrap{ transform:translate3d(-36%,10%,0) scale(.80) rotate(-17deg); }
+[data-flavor="lemon"]    .bottle-wrap{ transform:translate3d(36%,10%,0)  scale(.80) rotate(17deg);  }
+
+/* ---- per-character reveal of the flavour word (JS adds .is-split) ---- */
+.bgword.is-split span{ transform:none; opacity:1; transition:none; }
+.bgword i{
+  display:inline-block; font-style:normal;
+  opacity:0;
+  transform:translateY(.5em) rotate(8deg) scale(.86);
+  transition:opacity .7s var(--ease), transform 1s var(--ease);
+  transition-delay:calc(var(--i) * .045s);
+  will-change:transform;
+}
+/* the wave waits until the reveal has settled, and uses no fill mode, so the
+   transition above still owns the entrance */
+.slide.is-active .bgword i{
+  opacity:1; transform:none;
+  animation:charWave 4.6s ease-in-out infinite alternate;
+  animation-delay:calc(1.9s + var(--i) * .085s);
+}
+@keyframes charWave{
+  from{ transform:translateY(0)       rotate(0deg); }
+  to  { transform:translateY(-.075em) rotate(-1.2deg); }
+}
+
+/* ---- drifting bokeh ---- */
+.bokeh{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.bokeh b{
+  position:absolute;
+  left:var(--bx); top:var(--by);
+  width:var(--bs); height:var(--bs);
+  border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,
+              rgba(255,255,255,.9) 0%,
+              color-mix(in srgb, var(--glow) 70%, transparent) 46%,
+              transparent 72%);
+  opacity:var(--bo);
+  filter:blur(var(--bb));
+  animation:bokehFloat var(--bd) var(--bdl) ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes bokehFloat{
+  from{ transform:translate3d(0,0,0) scale(1); }
+  to  { transform:translate3d(var(--bdx), var(--bdy), 0) scale(var(--bsc)); }
+}
+.bokeh--near b{ mix-blend-mode:screen; }
+
+/* ---- light sweep across the scene on each slide change ---- */
+.sweep{
+  position:absolute; inset:-25% -45%;
+  pointer-events:none; opacity:0;
+  background:linear-gradient(72deg,
+    transparent 40%,
+    rgba(255,255,255,.10) 47%,
+    rgba(255,255,255,.28) 50%,
+    rgba(255,255,255,.10) 53%,
+    transparent 60%);
+}
+.slide.is-active .sweep{ animation:sweep 1.7s var(--ease) .12s 1; }
+@keyframes sweep{
+  0%  { opacity:0; transform:translate3d(-42%,0,0); }
+  25% { opacity:1; }
+  100%{ opacity:0; transform:translate3d(42%,0,0); }
+}
+
+/* ---- eyebrow rule draws itself in ---- */
+.eyebrow i{ transform:scaleX(0); transform-origin:left;
+            transition:transform .9s var(--ease) .38s; }
+.slide.is-active .eyebrow i{ transform:scaleX(1); }
+
+/* ---- feature pills pop in one by one ---- */
+.facts li{
+  opacity:0; transform:translateY(16px) scale(.9);
+  transition:opacity .55s var(--ease), transform .7s var(--ease),
+             background .3s, border-color .3s;
+}
+.slide.is-active .facts li{ opacity:1; transform:none; }
+.slide.is-active .facts li:nth-child(1){ transition-delay:.50s,.50s,0s,0s; }
+.slide.is-active .facts li:nth-child(2){ transition-delay:.57s,.57s,0s,0s; }
+.slide.is-active .facts li:nth-child(3){ transition-delay:.64s,.64s,0s,0s; }
+.facts li:hover{ background:rgba(255,255,255,.15); border-color:rgba(255,255,255,.42); }
+
+/* ---- CTA shine ---- */
+.cta::after{
+  content:""; position:absolute;
+  top:-40%; bottom:-40%; width:38%; left:-60%;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.8), transparent);
+  transform:skewX(-18deg);
+  pointer-events:none;
+  animation:shine 5s ease-in-out 1.4s infinite;
+}
+@keyframes shine{
+  0%{ left:-60%; } 18%{ left:130%; } 100%{ left:130%; }
+}
+
+/* ---- script line keeps floating after it lands ---- */
+.slide.is-active .script{ animation:scriptFloat 6.5s ease-in-out 1.5s infinite alternate; }
+@keyframes scriptFloat{
+  from{ transform:translate3d(0,0,0); }
+  to  { transform:translate3d(0,-11px,0); }
+}
+
+/* ---- chrome settles in on load ----
+   The hidden state lives in the keyframes, not on the element, with a
+   `backwards` fill. So if the animation never runs (background tab, animations
+   disabled, stylesheet quirk) the chrome still rests fully visible rather than
+   at opacity 0. */
+.topbar > *{ animation:navIn .9s var(--ease) backwards; }
+.topbar .brand  { animation-delay:.15s; }
+.topbar .mainnav{ animation-delay:.28s; }
+.topbar .tools  { animation-delay:.40s; }
+@keyframes navIn{ from{ opacity:0; transform:translateY(-16px); } }
+
+.hud            { animation:riseIn .9s var(--ease) .70s backwards; }
+.counter, .hint { animation:riseIn .9s var(--ease) .85s backwards; }
+@keyframes riseIn{ from{ opacity:0; transform:translateY(18px); } }
+
+/* ============================ RESPONSIVE ========================== */
+@media (max-width:1180px){
+  .copy{ width:min(36ch, 48vw); }
+  .script{ top:22%; }
+}
+
+@media (max-width:900px){
+  .mainnav{ display:none; }
+  .icon--menu{ display:grid; }
+  .tools{ margin-left:auto; }
+
+  .hero{ min-height:560px; }
+
+  .bgword{ left:50%; top:26%; font-size:clamp(3.4rem, 19vw, 8.5rem); }
+  .halo{ left:50%; top:32%; width:92vmin; height:92vmin; }
+  .bottle-wrap{ left:50%; top:32%; width:min(50vw, 210px); }
+
+  .copy{
+    left:0; right:0; top:auto; bottom:clamp(104px,15vh,150px);
+    translate:0;
+    width:auto; padding-inline:var(--shell);
+    align-items:center; text-align:center;
+  }
+  /* stacked copy sits over the busiest part of the art, so it carries its own
+     scrim: full-bleed and run past the bottom edge, so it never shows a seam.
+     Absolute, so it stays out of the flex flow. */
+  .copy::before{
+    content:"";
+    position:absolute;
+    left:-50vw; right:-50vw;
+    top:-110px; bottom:-40vh;
+    z-index:-1; pointer-events:none;
+    background:linear-gradient(to bottom,
+                transparent 0%,
+                rgba(3,6,14,.46) 18%,
+                rgba(3,6,14,.74) 42%,
+                rgba(3,6,14,.82) 100%);
+  }
+  .desc{ display:none; }
+  .facts{ justify-content:center; }
+  .title{ font-size:clamp(2.3rem, 10vw, 3.4rem); }
+  .title span{ display:inline; }
+
+  /* the dots already carry position — the counter would only collide with the arrows */
+  .script, .stack, .hint, .counter{ display:none; }
+
+  /* keep the near-camera plane from crowding a small screen */
+  .layer--front .el{ opacity:.26 !important; }
+  .el{ filter:blur(var(--blur,0px)); }
+}
+
+@media (max-width:560px){
+  .bottle-wrap{ top:31%; width:min(52vw, 196px); }
+  .bgword{ top:24%; }
+  .facts li{ padding:7px 12px 7px 9px; font-size:10px; letter-spacing:.1em; }
+  .cta{ padding:14px 20px 14px 24px; }
+}
+
+/* ---- height-constrained: laptops, landscape phones ----
+   the scene is centred, so it has to shrink rather than spill past the frame */
+@media (max-height:780px) and (min-width:901px){
+  .bottle-wrap{ width:clamp(155px, 20vw, 310px); }
+  .bgword{ font-size:clamp(2.6rem, 10vw, 8.5rem); }
+  .title{ font-size:clamp(2rem, 4.4vw, 4rem); }
+  .script{ top:20%; font-size:clamp(1.3rem, 2.4vw, 2.2rem); }
+}
+
+@media (max-height:700px){
+  .hero{ min-height:0; }
+  .desc{ display:none; }
+  .stack{ bottom:clamp(80px,11vh,110px); }
+}
+
+@media (max-height:560px){
+  .script, .stack, .hint, .facts{ display:none; }
+  .bottle-wrap{ width:clamp(118px, 16vw, 205px); top:46%; }
+  .bgword{ top:40%; font-size:clamp(2.2rem, 8vw, 5rem); }
+  .title{ font-size:clamp(1.7rem, 4.6vw, 2.6rem); }
+}
+/* landscape phone: too short to stack, so go back to side-by-side */
+@media (max-height:560px) and (max-width:900px){
+  .copy{
+    left:var(--shell); right:auto; top:50%; bottom:auto;
+    translate:0 -50%;
+    width:min(34ch, 46vw); padding-inline:0;
+    align-items:flex-start; text-align:left;
+  }
+  .title span{ display:block; }
+  .bottle-wrap{ left:66%; top:50%; width:min(26vw, 152px); }
+  .bgword{ left:66%; top:44%; font-size:clamp(2rem, 7vw, 4.5rem); }
+  .halo{ left:66%; top:50%; width:70vmin; height:70vmin; }
+}
+@media (max-height:560px) and (min-width:901px){
+  .copy{ width:min(40ch, 52vw); }
+}
+
+/* ========================= REDUCED MOTION ========================= */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.2s !important;
+  }
+  .world,.el,.bottle,.halo,.bgword,.bgword i,
+  .bokeh b,.sweep,.cta::after,.script{ animation:none !important; }
+  .copy > *{ filter:none !important; }
+  .layer{ transition:none; transform:none !important; }
+  .layer__in{ transform:none !important; }
+  .bottle-wrap{ transform:none !important; }
+  .dot.is-on i{ animation:none; transform:scaleX(1); }
+}

@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRIME — Hydrate Your Next Move</title>
+<meta name="description" content="A three-flavour reel hero: Blue Raspberry, Tropical Punch and Lemon Lime.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/bottle-blue.webp">
+<link rel="preload" as="image" href="assets/bg-blue.webp">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<a class="skip" href="#copy-blue">Skip to content</a>
+
+<!-- ───────────────────────────── NAV ───────────────────────────── -->
+<header class="topbar">
+  <a class="brand" href="#" aria-label="PRIME home">PRIME</a>
+
+  <nav class="mainnav" aria-label="Primary">
+    <a href="#" class="is-current">Flavors</a>
+    <a href="#">About</a>
+    <a href="#">Shop</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <div class="tools">
+    <button class="icon" type="button" aria-label="Search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+    </button>
+    <button class="icon" type="button" aria-label="Bag, 0 items">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9.5 8V6.5a2.5 2.5 0 0 1 5 0V8"/></svg>
+    </button>
+    <button class="icon icon--menu" type="button" aria-label="Menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16"/><path d="M4 16h16"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ───────────────────────────── HERO REEL ───────────────────────────── -->
+<main class="hero">
+  <div class="reel" id="reel" role="region" aria-roledescription="carousel" aria-label="Flavour reel">
+
+    <!-- ══════════ 1 · BLUE RASPBERRY ══════════ -->
+    <article class="slide is-active" data-flavor="blue" aria-label="1 of 3: Blue Raspberry">
+
+      <div class="layer" style="--depth:5">
+        <div class="layer__in" style="--d:0ms">
+          <div class="world" style="background-image:url(assets/bg-blue.webp)"></div>
+          <div class="vignette"></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--depth:11">
+        <div class="layer__in" style="--d:40ms">
+          <h2 class="bgword" aria-hidden="true"><span>Blue</span><span>Raspberry</span></h2>
+        </div>
+      </div>
+
+      <div class="layer" style="--depth:20">
+        <div class="layer__in" style="--d:80ms">
+          <div class="halo"></div>
+          <div class="bokeh" data-bokeh="16"></div>
+          <img class="el splash" src="assets/splash-blue.webp" alt=""
+               style="--x:58%;--y:44%;--w:74vmin;--r:8deg;--dx:-14px;--dy:16px;--dr:-3deg;--dur:15s;--dly:-3s;--op:.85;--blur:2px">
+          <img class="el" src="assets/ice-blue.webp" alt=""
+               style="--x:40%;--y:29%;--w:13vmin;--r:-18deg;--dx:12px;--dy:20px;--dr:14deg;--dur:13s;--dly:-5s;--op:.5;--blur:7px">
+        </div>
+      </div>
+
+      <div class="layer layer--main" style="--depth:34">
+        <div class="layer__in" style="--d:120ms">
+          <div class="bottle-wrap">
+            <img class="bottle" src="assets/bottle-blue.webp" alt="PRIME Blue Raspberry hydration drink" fetchpriority="high">
+          </div>
+          <img class="el" src="assets/ice-blue.webp" alt=""
+               style="--x:74%;--y:70%;--w:16vmin;--r:14deg;--dx:-10px;--dy:-18px;--dr:-12deg;--dur:11s;--dly:-1s">
+          <img class="el" src="assets/leaf-a.webp" alt=""
+               style="--x:33%;--y:73%;--w:20vmin;--r:-150deg;--dx:14px;--dy:-14px;--dr:9deg;--dur:12s;--dly:-6s;--op:.95">
+          <img class="el" src="assets/ice-blue.webp" alt=""
+               style="--x:82%;--y:55%;--w:13vmin;--r:-24deg;--dx:-9px;--dy:14px;--dr:16deg;--dur:9s;--dly:-2s;--op:.9">
+        </div>
+      </div>
+
+      <div class="layer layer--front" style="--depth:62">
+        <div class="layer__in" style="--d:160ms">
+          <img class="el" src="assets/leaf-a.webp" alt=""
+               style="--x:12%;--y:90%;--w:34vmin;--r:24deg;--dx:22px;--dy:-18px;--dr:-7deg;--dur:16s;--dly:-4s;--op:.55;--blur:14px">
+          <img class="el" src="assets/ice-blue.webp" alt=""
+               style="--x:94%;--y:88%;--w:26vmin;--r:-8deg;--dx:-16px;--dy:-20px;--dr:10deg;--dur:17s;--dly:-2s;--op:.4;--blur:18px">
+          <div class="bokeh bokeh--near" data-bokeh="7"></div>
+          <div class="sweep"></div>
+        </div>
+      </div>
+
+      <div class="copy" id="copy-blue">
+        <p class="eyebrow"><i></i>Hydrate Your Next Move</p>
+        <h1 class="title"><span>Blue</span> <span>Raspberry</span></h1>
+        <p class="desc">Ice-cold blue raspberry with a clean electric finish — built to put back everything a hard session takes out of you.</p>
+        <ul class="facts">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.4 6 10.4A6 6 0 0 1 6 13.4C6 9.4 12 3 12 3Z"/></svg>Hydration</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg>Electrolytes</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg>B Vitamins</li>
+        </ul>
+        <a class="cta" href="#">Buy Now
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <p class="script" aria-hidden="true">More Than A Drink</p>
+      <ul class="stack" aria-hidden="true"><li>Fuel</li><li>Focus</li><li>Refresh</li><li>Repeat</li></ul>
+    </article>
+
+    <!-- ══════════ 2 · TROPICAL PUNCH ══════════ -->
+    <article class="slide" data-flavor="tropical" aria-label="2 of 3: Tropical Punch">
+
+      <div class="layer" style="--depth:5">
+        <div class="layer__in" style="--d:0ms">
+          <div class="world" style="background-image:url(assets/bg-tropical.webp)"></div>
+          <div class="vignette"></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--depth:11">
+        <div class="layer__in" style="--d:40ms">
+          <h2 class="bgword" aria-hidden="true"><span>Tropical</span><span>Punch</span></h2>
+        </div>
+      </div>
+
+      <div class="layer" style="--depth:20">
+        <div class="layer__in" style="--d:80ms">
+          <div class="halo"></div>
+          <div class="bokeh" data-bokeh="16"></div>
+          <img class="el splash" src="assets/splash-tropical.webp" alt=""
+               style="--x:58%;--y:46%;--w:78vmin;--r:-6deg;--dx:16px;--dy:14px;--dr:4deg;--dur:16s;--dly:-4s;--op:.9;--blur:2px">
+          <img class="el" src="assets/mango-cubes.webp" alt=""
+               style="--x:39%;--y:27%;--w:15vmin;--r:16deg;--dx:-12px;--dy:18px;--dr:-10deg;--dur:12s;--dly:-3s;--op:.5;--blur:8px">
+        </div>
+      </div>
+
+      <div class="layer layer--main" style="--depth:34">
+        <div class="layer__in" style="--d:120ms">
+          <div class="bottle-wrap">
+            <img class="bottle" src="assets/bottle-tropical.webp" alt="PRIME Tropical Punch hydration drink" loading="lazy">
+          </div>
+          <img class="el" src="assets/orange-wedge.webp" alt=""
+               style="--x:72%;--y:72%;--w:19vmin;--r:-22deg;--dx:-12px;--dy:-16px;--dr:12deg;--dur:11s;--dly:-2s">
+          <img class="el" src="assets/mango-cubes.webp" alt=""
+               style="--x:32%;--y:67%;--w:16vmin;--r:-10deg;--dx:14px;--dy:-12px;--dr:-8deg;--dur:13s;--dly:-6s">
+          <img class="el" src="assets/leaf-b.webp" alt=""
+               style="--x:68%;--y:22%;--w:22vmin;--r:158deg;--dx:-10px;--dy:12px;--dr:7deg;--dur:14s;--dly:-1s;--op:.95">
+        </div>
+      </div>
+
+      <div class="layer layer--front" style="--depth:62">
+        <div class="layer__in" style="--d:160ms">
+          <img class="el" src="assets/leaf-b.webp" alt=""
+               style="--x:9%;--y:88%;--w:38vmin;--r:-28deg;--dx:24px;--dy:-16px;--dr:8deg;--dur:17s;--dly:-5s;--op:.5;--blur:15px">
+          <img class="el" src="assets/orange-wedge.webp" alt=""
+               style="--x:92%;--y:20%;--w:28vmin;--r:18deg;--dx:-18px;--dy:20px;--dr:-9deg;--dur:15s;--dly:-8s;--op:.45;--blur:17px">
+          <img class="el" src="assets/ice-clear.webp" alt=""
+               style="--x:95%;--y:86%;--w:24vmin;--r:-12deg;--dx:-14px;--dy:-22px;--dr:11deg;--dur:16s;--dly:-3s;--op:.4;--blur:18px">
+          <div class="bokeh bokeh--near" data-bokeh="7"></div>
+          <div class="sweep"></div>
+        </div>
+      </div>
+
+      <div class="copy">
+        <p class="eyebrow"><i></i>Hydrate Your Next Move</p>
+        <h1 class="title"><span>Tropical</span> <span>Punch</span></h1>
+        <p class="desc">Sun-ripe mango, orange and guava poured into one bold hit of tropical energy — tuned for the long, loud days.</p>
+        <ul class="facts">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.4 6 10.4A6 6 0 0 1 6 13.4C6 9.4 12 3 12 3Z"/></svg>Hydration</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg>Electrolytes</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg>B Vitamins</li>
+        </ul>
+        <a class="cta" href="#">Buy Now
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <p class="script" aria-hidden="true">Tropical Energy Everywhere</p>
+      <ul class="stack" aria-hidden="true"><li>Bold</li><li>Flavor</li><li>Real</li><li>Energy</li></ul>
+    </article>
+
+    <!-- ══════════ 3 · LEMON LIME ══════════ -->
+    <article class="slide" data-flavor="lemon" aria-label="3 of 3: Lemon Lime">
+
+      <div class="layer" style="--depth:5">
+        <div class="layer__in" style="--d:0ms">
+          <div class="world" style="background-image:url(assets/bg-lemon.webp)"></div>
+          <div class="vignette"></div>
+        </div>
+      </div>
+
+      <div class="layer" style="--depth:11">
+        <div class="layer__in" style="--d:40ms">
+          <h2 class="bgword" aria-hidden="true"><span>Lemon</span><span>Lime</span></h2>
+        </div>
+      </div>
+
+      <div class="layer" style="--depth:20">
+        <div class="layer__in" style="--d:80ms">
+          <div class="halo"></div>
+          <div class="bokeh" data-bokeh="16"></div>
+          <img class="el splash splash--solid" src="assets/splash-water.webp" alt=""
+               style="--x:57%;--y:45%;--w:82vmin;--r:-12deg;--dx:-12px;--dy:16px;--dr:5deg;--dur:15s;--dly:-2s;--op:1;--blur:0px">
+          <img class="el" src="assets/lemon-wedge.webp" alt=""
+               style="--x:40%;--y:27%;--w:15vmin;--r:-24deg;--dx:12px;--dy:16px;--dr:12deg;--dur:12s;--dly:-4s;--op:.5;--blur:8px">
+        </div>
+      </div>
+
+      <div class="layer layer--main" style="--depth:34">
+        <div class="layer__in" style="--d:120ms">
+          <div class="bottle-wrap">
+            <img class="bottle" src="assets/bottle-lemon.webp" alt="PRIME Lemon Lime hydration drink" loading="lazy">
+          </div>
+          <img class="el" src="assets/lime-half.webp" alt=""
+               style="--x:73%;--y:71%;--w:18vmin;--r:12deg;--dx:-12px;--dy:-16px;--dr:-10deg;--dur:11s;--dly:-3s">
+          <img class="el" src="assets/lemon-wedge.webp" alt=""
+               style="--x:31%;--y:68%;--w:17vmin;--r:-14deg;--dx:14px;--dy:-14px;--dr:9deg;--dur:13s;--dly:-7s">
+          <img class="el" src="assets/ice-crystal.webp" alt=""
+               style="--x:69%;--y:23%;--w:14vmin;--r:10deg;--dx:-9px;--dy:13px;--dr:-8deg;--dur:10s;--dly:-1s;--op:.9">
+          <img class="el" src="assets/leaf-c.webp" alt=""
+               style="--x:24%;--y:41%;--w:19vmin;--r:-168deg;--dx:11px;--dy:13px;--dr:6deg;--dur:14s;--dly:-5s;--op:.9">
+        </div>
+      </div>
+
+      <div class="layer layer--front" style="--depth:62">
+        <div class="layer__in" style="--d:160ms">
+          <img class="el" src="assets/leaf-c.webp" alt=""
+               style="--x:11%;--y:89%;--w:36vmin;--r:26deg;--dx:22px;--dy:-18px;--dr:-8deg;--dur:16s;--dly:-6s;--op:.5;--blur:15px">
+          <img class="el" src="assets/lime-half.webp" alt=""
+               style="--x:91%;--y:18%;--w:26vmin;--r:-16deg;--dx:-18px;--dy:20px;--dr:10deg;--dur:15s;--dly:-2s;--op:.42;--blur:17px">
+          <img class="el" src="assets/ice-crystal.webp" alt=""
+               style="--x:94%;--y:87%;--w:24vmin;--r:14deg;--dx:-15px;--dy:-20px;--dr:-9deg;--dur:17s;--dly:-4s;--op:.4;--blur:18px">
+          <div class="bokeh bokeh--near" data-bokeh="7"></div>
+          <div class="sweep"></div>
+        </div>
+      </div>
+
+      <div class="copy">
+        <p class="eyebrow"><i></i>Hydrate Your Next Move</p>
+        <h1 class="title"><span>Lemon</span> <span>Lime</span></h1>
+        <p class="desc">Sharp lemon over cold-pressed lime. Crisp, clean and impossibly easy to keep drinking from first sip to last.</p>
+        <ul class="facts">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.4 6 10.4A6 6 0 0 1 6 13.4C6 9.4 12 3 12 3Z"/></svg>Hydration</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z"/></svg>Electrolytes</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg>B Vitamins</li>
+        </ul>
+        <a class="cta" href="#">Buy Now
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13"/><path d="m12.5 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <p class="script" aria-hidden="true">Citrus Vibes All Day</p>
+      <ul class="stack" aria-hidden="true"><li>Pure</li><li>Flavor</li><li>Real</li><li>Hydration</li></ul>
+    </article>
+
+  </div><!-- /reel -->
+
+  <!-- ───────────── HUD ───────────── -->
+  <div class="hud">
+    <button class="arrow arrow--prev" type="button" aria-label="Previous flavour">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+
+    <div class="dots" role="tablist" aria-label="Choose flavour">
+      <button class="dot is-on" type="button" role="tab" aria-selected="true"  data-go="0"><span>Blue Raspberry</span><i></i></button>
+      <button class="dot"       type="button" role="tab" aria-selected="false" data-go="1"><span>Tropical Punch</span><i></i></button>
+      <button class="dot"       type="button" role="tab" aria-selected="false" data-go="2"><span>Lemon Lime</span><i></i></button>
+    </div>
+
+    <button class="arrow arrow--next" type="button" aria-label="Next flavour">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <p class="counter" aria-hidden="true"><b id="counter-now">01</b><i></i>03</p>
+  <p class="hint" aria-hidden="true"><span>Drag</span> or swipe to explore</p>
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>

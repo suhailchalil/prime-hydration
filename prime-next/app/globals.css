@@ -1,0 +1,739 @@
+@import "tailwindcss";
+
+/* ====================================================================
+   TOKENS
+   Per-flavour values (--accent, --glow, --word, --bg-*) are written onto
+   each .slide inline from lib/flavors.js.
+   ==================================================================== */
+@theme {
+  --font-display: var(--font-anton), Impact, "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-script: var(--font-caveat), "Segoe Script", cursive;
+
+  --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.33, 0.9, 0.28, 1);
+}
+
+:root {
+  --shell: clamp(22px, 4.8vw, 78px);
+  --slide-ms: 1000ms;
+}
+
+/* ====================================================================
+   BASE
+   ==================================================================== */
+html,
+body { height: 100%; }
+
+body {
+  margin: 0;
+  background: #04070f;
+  color: #fff;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ====================================================================
+   HERO + SLIDES
+
+   Z-INDEX SYSTEM — every layer picks from this ladder, nothing ad hoc:
+     0   background world
+     2   ambient glow / grade
+     5   giant typography
+     10  rear splash
+     15  fruit behind
+     20  bottle
+     25  front splash / ice / droplets
+     30  content
+     40  header
+     50  navigation
+   ==================================================================== */
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 480px;
+  overflow: hidden;
+  overflow: clip;
+  isolation: isolate;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--slide-ms) var(--ease-lux),
+              visibility 0s linear calc(var(--slide-ms) + 100ms);
+}
+
+.slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s, 0s;
+  z-index: 2;
+}
+
+/* ====================================================================
+   DEPTH LAYERS
+   Parallax is deliberately almost subconscious: background type barely
+   moves, foreground objects move most, nothing exceeds ~14px.
+   ==================================================================== */
+.layer {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(
+    calc(var(--mx, 0) * var(--depth, 6) * 1px),
+    calc(var(--my, 0) * var(--depth, 6) * 0.7px),
+    0
+  );
+  transition: transform 1s var(--ease-soft);
+  will-change: transform;
+}
+
+/* ====================================================================
+   BACKGROUND — tonal, never flat
+   The photo supplies texture and bokeh; the gradients supply the tonal
+   ramp: dark edge → rich mid → luminous core behind the product.
+   ==================================================================== */
+.world {
+  position: absolute;
+  inset: -8%;
+  background-size: cover;
+  background-position: center;
+  animation: worldDrift 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes worldDrift {
+  from { transform: scale(1.05) translate3d(-1%, 0.5%, 0); }
+  to   { transform: scale(1.14) translate3d(1.4%, -1.2%, 0); }
+}
+
+.grade {
+  position: absolute;
+  inset: 0;
+  background:
+    /* luminous core, separating the bottle from the field */
+    radial-gradient(62% 66% at 62% 46%, var(--bg-glow) 0%, transparent 58%),
+    /* rich mid tone through the centre */
+    radial-gradient(95% 85% at 56% 50%, var(--bg-mid) 0%, transparent 72%),
+    /* copy-side weight */
+    linear-gradient(100deg, var(--bg-edge) 0%, rgba(0, 0, 0, 0.3) 26%, transparent 52%),
+    /* floor weight */
+    linear-gradient(to top, var(--bg-edge) 0%, rgba(0, 0, 0, 0.22) 26%, transparent 50%),
+    /* dark falloff at the frame */
+    radial-gradient(135% 108% at 58% 44%, transparent 20%, var(--bg-edge) 100%);
+}
+
+/* soft top key light so the scene reads as lit */
+.keylight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(44% 36% at 64% 4%, rgba(255, 255, 255, 0.13) 0%, transparent 70%);
+  mix-blend-mode: screen;
+}
+
+/* The key light the product is lit BY — a tight, bright core high and right
+   of the bottle, exactly where the reference art puts its light source. */
+.halo {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at var(--key-x, 66%) var(--key-y, 34%),
+      var(--key) 0%, transparent 32%),
+    radial-gradient(circle at var(--bx, 61%) var(--by, 52%),
+      color-mix(in srgb, var(--glow) 30%, transparent) 0%, transparent 44%);
+  filter: blur(26px);
+  animation: haloPulse 9s ease-in-out infinite alternate;
+}
+
+@keyframes haloPulse {
+  from { opacity: 0.86; }
+  to   { opacity: 1; }
+}
+
+/* ====================================================================
+   GIANT FLAVOUR WORD
+
+   Clean, oversized editorial typography. Solid flavour-tinted colour —
+   deliberately NO background-clip, no texture, no photo inside the
+   letters. The word is a canvas for the product, not competition for it.
+
+   Sized by width: `92vw / --em`, where --em is the word's measured width
+   in em. Long words land at a smaller font size than short ones, which
+   is what keeps their horizontal mass comparable.
+   ==================================================================== */
+.fw-wrap {
+  position: absolute;
+  left: 50%;
+  top: 35%;
+  translate: -50% -50%;
+  pointer-events: none;
+  user-select: none;
+  display: grid;
+}
+
+.fw {
+  grid-area: 1 / 1;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: min(calc(92vw / var(--em)), 46vh);
+  line-height: 0.78;
+  letter-spacing: var(--track, -0.04em);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--word);
+}
+
+/* the only depth: a hairline edge and a soft flavour glow */
+.fw--main {
+  -webkit-text-stroke: 1px var(--word-edge);
+  filter: drop-shadow(0 0 40px color-mix(in srgb, var(--glow) 26%, transparent))
+          drop-shadow(0 18px 44px rgba(0, 0, 0, 0.3));
+}
+
+/* a very soft blurred copy behind, for separation — not a drop shadow */
+.fw--behind {
+  color: rgba(0, 0, 0, 0.34);
+  transform: translate(4px, 10px);
+  filter: blur(26px);
+}
+
+/* ====================================================================
+   SCENE ELEMENTS
+   ==================================================================== */
+.el {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: auto;
+  translate: -50% -50%;
+  opacity: var(--op, 1);
+  filter: blur(var(--blur, 0px)) drop-shadow(0 18px 28px rgba(0, 0, 0, 0.36));
+  animation: drift var(--dur, 14s) var(--dly, 0s) ease-in-out infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  to   { transform: translate3d(var(--dx, 8px), var(--dy, -10px), 0)
+                    rotate(calc(var(--r, 0deg) + var(--dr, 4deg))); }
+}
+
+/* a single heavily blurred shape at the frame edge — pure camera depth */
+.el--fg {
+  filter: blur(var(--blur, 22px));
+  opacity: var(--op, 0.28);
+}
+
+/* clear water needs lifting, or it reads grey rather than refreshing */
+.el--water {
+  filter: blur(var(--blur, 0px)) brightness(1.18) saturate(1.15) contrast(1.06)
+          drop-shadow(0 0 22px color-mix(in srgb, var(--glow) 45%, transparent));
+}
+
+/* splash supports the product — it never dominates it */
+.el--splash {
+  mix-blend-mode: screen;
+  opacity: calc(var(--op, 1) * 0.9);
+  filter: blur(var(--blur, 0px)) saturate(1.08)
+          drop-shadow(0 0 26px color-mix(in srgb, var(--glow) 60%, transparent));
+  transition: filter 0.6s var(--ease-lux);
+}
+
+/* ====================================================================
+   PRODUCT
+   Sized by HEIGHT (a % of the hero) rather than width, so it holds its
+   presence across aspect ratios. Each slide art-directs its own
+   position, scale and rotation.
+   ==================================================================== */
+.bottle-wrap {
+  position: absolute;
+  left: var(--bx, 61%);
+  top: var(--by, 52%);
+  height: calc(var(--bh, 64) * 1vh);
+  translate: -50% -50%;
+  transition: scale 0.7s var(--ease-lux);
+}
+
+.bottle-float {
+  height: 100%;
+  animation: bottleFloat 6.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.bottle {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  rotate: var(--brot, 0deg);
+  /* soft and shallow — a heavy black shadow reads as a pasted cut-out */
+  filter: drop-shadow(0 30px 45px rgba(0, 0, 0, 0.24))
+          drop-shadow(0 0 70px color-mix(in srgb, var(--glow) 34%, transparent));
+}
+
+/* restrained idle float — ±6px, ±0.7deg */
+@keyframes bottleFloat {
+  from { transform: translate3d(0, -6px, 0) rotate(-0.7deg); }
+  to   { transform: translate3d(0, 6px, 0) rotate(0.7deg); }
+}
+
+.bottle-wrap:hover { scale: 1.025; }
+.slide:has(.bottle-wrap:hover) .halo { opacity: 0.5; transition: opacity 0.6s var(--ease-lux); }
+
+/* ====================================================================
+   SLIDE UI
+   ==================================================================== */
+.f-label {
+  position: absolute;
+  left: var(--shell);
+  top: 12%;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.6vw, 24px);
+  margin: 0;
+  font-size: clamp(16px, 1.45vw, 26px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* the thin rule draws itself out from the label */
+.f-label i {
+  display: block;
+  width: clamp(46px, 10vw, 170px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.slide.is-active .f-label i {
+  animation: ruleDraw 0.9s var(--ease-lux) 0.42s forwards;
+}
+@keyframes ruleDraw { to { transform: scaleX(1); } }
+
+.f-copy {
+  position: absolute;
+  left: var(--shell);
+  bottom: clamp(13vh, 15vh, 17vh);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: min(440px, 38vw);
+}
+
+.f-headline {
+  margin: 0;
+  font-size: clamp(12px, 1.02vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+}
+
+.f-desc {
+  margin: clamp(13px, 1.4vw, 18px) 0 0;
+  font-size: clamp(14px, 1.06vw, 17px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.84);
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.6);
+}
+
+.f-script {
+  position: absolute;
+  right: calc(var(--shell) + 1vw);
+  top: 16%;
+  z-index: 30;
+  margin: 0;
+  max-width: 30vw;
+  rotate: -4deg;
+  text-align: right;
+  font-family: var(--font-script);
+  font-size: clamp(1.2rem, 1.95vw, 2rem);
+  line-height: 1.15;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation: enterFade 1.1s var(--ease-lux) var(--delay, 0s) backwards,
+             scriptFloat 7s ease-in-out 1.6s infinite alternate;
+}
+
+@keyframes scriptFloat {
+  from { transform: rotate(-4deg) translate3d(0, 0, 0); }
+  to   { transform: rotate(-4deg) translate3d(0, -8px, 0); }
+}
+
+/* the underline flourish beneath the script, drawn on entry */
+.f-script svg {
+  display: block;
+  width: 78%;
+  margin-left: auto;
+  margin-top: 2px;
+  overflow: visible;
+}
+.f-script svg path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+}
+.slide.is-active .f-script svg path {
+  animation: flourish 1.1s var(--ease-lux) 1.25s forwards;
+}
+@keyframes flourish { to { stroke-dashoffset: 0; } }
+
+.f-stack {
+  position: absolute;
+  right: var(--shell);
+  bottom: clamp(13vh, 15vh, 17vh);
+  z-index: 30;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+}
+
+.f-stack li {
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.f-stack li:last-child::after {
+  content: "";
+  display: block;
+  margin-top: 10px;
+  margin-left: auto;
+  height: 1px;
+  width: 54px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ====================================================================
+   ENTRANCES
+   Hidden state lives in the keyframes with `backwards` fill, never as
+   opacity:0 on the element — so if an animation never runs, everything
+   still rests visible.
+   ==================================================================== */
+.enter-up   { animation: enterUp 0.95s var(--ease-lux) var(--delay, 0s) backwards; }
+@keyframes enterUp { from { opacity: 0; transform: translateY(26px); } }
+
+.enter-fade { animation: enterFade 1.1s var(--ease-lux) var(--delay, 0s) backwards; }
+@keyframes enterFade { from { opacity: 0; } }
+
+.enter-el   { animation: enterEl 1.3s var(--ease-lux) var(--delay, 0s) backwards; }
+@keyframes enterEl { from { opacity: 0; transform: scale(0.88); } }
+
+/* one clean reveal for the big word — no letter-by-letter */
+.enter-word { animation: enterWord 1.15s var(--ease-lux) var(--delay, 0s) backwards; }
+@keyframes enterWord {
+  from { opacity: 0; transform: translate3d(-54px, 24px, 0) scaleX(0.98); }
+}
+
+.enter-bottle { animation: enterBottle 1.25s var(--ease-lux) var(--delay, 0s) backwards; }
+@keyframes enterBottle {
+  from { opacity: 0; transform: translate3d(0, 26px, 0) scale(0.93); }
+}
+
+/* hold inactive slides at their start frame so each entrance replays */
+.slide:not(.is-active) [class*="enter-"],
+.slide:not(.is-active) .f-script,
+.slide:not(.is-active) .f-label i { animation-play-state: paused; }
+
+/* ====================================================================
+   NAVIGATION
+   ==================================================================== */
+.nav-bar {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(26px, 4.4vh, 48px);
+  translate: -50% 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 28px);
+  animation: enterUp 0.95s var(--ease-lux) 1.05s backwards;
+}
+
+.nav-arrow {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  backdrop-filter: blur(10px);
+  transition: background 0.35s, border-color 0.35s, transform 0.35s var(--ease-lux);
+}
+.nav-arrow:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.55); transform: scale(1.05); }
+.nav-arrow:active { transform: scale(0.96); }
+
+.nav-dots { display: flex; align-items: center; gap: 12px; }
+
+/* active is longer and brighter; inactive shorter and dimmer */
+.nav-dot {
+  position: relative;
+  width: 26px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  transition: width 0.7s var(--ease-lux), background 0.5s;
+}
+.nav-dot:hover { background: rgba(255, 255, 255, 0.5); }
+.nav-dot.is-on { width: 64px; background: rgba(255, 255, 255, 0.22); }
+
+.nav-dot i {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.nav-dot.is-on i { animation: dotFill var(--autoplay, 8s) linear forwards; }
+.nav-bar:hover .nav-dot.is-on i,
+.hero.is-paused .nav-dot.is-on i { animation-play-state: paused; }
+@keyframes dotFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.nav-count {
+  position: absolute;
+  right: var(--shell);
+  bottom: clamp(28px, 4.6vh, 50px);
+  z-index: 50;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.45);
+  animation: enterUp 0.95s var(--ease-lux) 1.15s backwards;
+}
+.nav-count b { font-size: 13px; color: rgba(255, 255, 255, 0.92); font-weight: 700; }
+.nav-count i { width: 20px; height: 1px; background: currentColor; }
+
+/* ====================================================================
+   PRELOADER
+   A full-screen PRIME that fills as the art loads, then flies into the
+   header and becomes the logo. Logic lives in components/Preloader.jsx;
+   the html classes come from lib/preloader.js.
+   ==================================================================== */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+html.pl .preloader { display: flex; }
+
+.pl-curtain {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(55% 50% at 50% 46%, rgba(46, 168, 255, 0.12), transparent 70%),
+    #04070f;
+}
+
+.pl-stage {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: plIn 1s var(--ease-lux) 0.05s backwards;
+}
+@keyframes plIn { from { opacity: 0; transform: translateY(18px); } }
+
+/* scaled from its top-left corner — the FLIP maths depends on it */
+.pl-word {
+  display: inline-grid;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Identical metrics to the header logo (.brand): same face, same tracking in
+   em, same line-height. That is what lets the scaled word land on the real
+   logo glyph for glyph. Change one, change the other. */
+.pl-glyphs {
+  grid-area: 1 / 1;
+  font-family: var(--font-display);
+  font-size: min(24vw, 40vh);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pl-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.22);
+}
+
+/* the solid word, revealed left to right as loading progresses */
+.pl-fill {
+  color: #fff;
+  clip-path: inset(0 100% 0 0);
+}
+
+.pl-meta {
+  margin-top: clamp(14px, 2.4vh, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pl-track {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+}
+.pl-track i {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.pl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: clamp(10px, 0.78vw, 12px);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.pl-row b {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- gating: what the loader holds back ---- */
+
+/* the flying PRIME *is* the logo's entrance — it never plays its own */
+html.pl .brand { animation: none; }
+
+/* hidden while its stand-in is in flight */
+html.pl-logo .brand { opacity: 0; }
+
+/* the whole hero waits at frame zero, so its entrance plays as the curtain
+   lifts instead of finishing unseen behind it */
+html.pl-hold .hero *,
+html.pl-hold .hero *::before,
+html.pl-hold .hero *::after { animation-play-state: paused !important; }
+
+@media (max-width: 767px) {
+  /* no room for the tagline beside the counter on a phone */
+  .pl-row { justify-content: flex-end; }
+  .pl-row span { display: none; }
+}
+
+/* ====================================================================
+   RESPONSIVE
+   ==================================================================== */
+@media (max-width: 1280px) {
+  .f-copy { width: min(400px, 42vw); }
+  .f-script { font-size: clamp(1.1rem, 2vw, 1.7rem); }
+}
+
+@media (max-width: 1024px) {
+  .fw { font-size: min(calc(94vw / var(--em)), 34vh); }
+  .f-copy { width: min(360px, 46vw); }
+  .f-desc { font-size: 14px; }
+}
+
+@media (max-width: 767px) {
+  .fw-wrap { top: 32%; }
+  .fw { font-size: min(calc(94vw / var(--em)), 22vh); }
+
+  .bottle-wrap { left: 50% !important; top: 34% !important; height: calc(var(--bh, 64) * 0.62vh); }
+  .halo { left: 50%; top: 34%; width: 96vmin; height: 96vmin; }
+
+  .f-label {
+    left: 0; right: 0; top: 11%;
+    justify-content: center;
+    font-size: clamp(13px, 3.6vw, 18px);
+  }
+  .f-label i { width: clamp(28px, 9vw, 60px); }
+
+  .f-copy {
+    left: 0; right: 0;
+    bottom: clamp(104px, 15vh, 150px);
+    width: auto;
+    padding-inline: var(--shell);
+    align-items: center;
+    text-align: center;
+  }
+
+  /* the stacked copy sits over the busiest part of the art, so it carries
+     its own scrim — full-bleed and run past the bottom edge, no seam */
+  .f-copy::before {
+    content: "";
+    position: absolute;
+    left: -50vw; right: -50vw;
+    top: -96px; bottom: -40vh;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+      transparent 0%, rgba(0, 0, 0, 0.5) 18%,
+      rgba(0, 0, 0, 0.78) 42%, rgba(0, 0, 0, 0.86) 100%);
+  }
+
+  .f-desc { display: none; }
+  .f-script, .f-stack, .nav-count { display: none; }
+}
+
+@media (max-height: 560px) and (max-width: 900px) {
+  .fw-wrap { top: 40%; }
+  .fw { font-size: min(calc(94vw / var(--em)), 26vh); }
+  .bottle-wrap { left: 68% !important; top: 48% !important; height: 60vh; }
+  .f-label { top: 9%; }
+  .f-copy { bottom: clamp(70px, 11vh, 96px); }
+}
+
+/* ====================================================================
+   REDUCED MOTION
+   ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.2s !important;
+  }
+  .world, .el, .bottle-float, .halo, .f-script { animation: none !important; }
+  .layer { transform: none !important; transition: none; }
+  .f-label i { transform: scaleX(1); animation: none !important; }
+  .nav-dot.is-on i { animation: none; transform: scaleX(1); }
+}
